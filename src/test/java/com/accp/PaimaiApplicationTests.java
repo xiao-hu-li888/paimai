@@ -19,9 +19,10 @@ class PaimaiApplicationTests {
 //			System.out.println(temp.getAuctionid());
 //			System.out.println(temp.getAuctionstarttime());
 //		});
-		auctionBiz.selectallBy("青", null, null, null, null, 1, 3).getList().forEach(temp->{
-			System.out.println(temp.getAuctionname());
-		});
+//		auctionBiz.selectallBy("青", null, null, null, null, 1, 3).getList().forEach(temp->{
+//			System.out.println(temp.getAuctionname());
+//		});
+		System.out.println("dddd");
 	}
 
 }
