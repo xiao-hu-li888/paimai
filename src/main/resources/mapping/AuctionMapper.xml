@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accp.dao.AuctionDao" >
+  <resultMap id="BaseResultMap" type="com.accp.pojo.Auction" >
+    <id column="auctionId" property="auctionid" jdbcType="INTEGER" />
+    <result column="auctionName" property="auctionname" jdbcType="VARCHAR" />
+    <result column="auctionStartPrice" property="auctionstartprice" jdbcType="REAL" />
+    <result column="auctionUpset" property="auctionupset" jdbcType="REAL" />
+    <result column="auctionStartTime" property="auctionstarttime" jdbcType="TIMESTAMP" />
+    <result column="auctionEndTime" property="auctionendtime" jdbcType="TIMESTAMP" />
+    <result column="auctionPic" property="auctionpic" jdbcType="VARCHAR" />
+    <result column="auctionDesc" property="auctiondesc" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.accp.pojo.Auction" extends="BaseResultMap" >
+    <result column="auctionPicType" property="auctionpictype" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    auctionId, auctionName, auctionStartPrice, auctionUpset, auctionStartTime, auctionEndTime, 
+    auctionPic, auctionDesc
+  </sql>
+  <sql id="Blob_Column_List" >
+    auctionPicType
+  </sql>
+  
+  <select id="selectAuctionrecordvo" resultType="com.accp.vo.AuctionRecordVo">
+		SELECT
+		a.`id`,a.`auctionId`,a.`auctionTime`,a.`auctionPrice`,b.`userName`
+		FROM `auctionrecord` a JOIN`auctionuser` b
+		ON a.`userId`=b.`userId`
+		where a.auctionId=#{auctionid}
+	</select>
+  
+  <!-- 根据id查询竞拍商品 -->
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from auction
+    where auctionId = #{auctionid}
+  </select>
+  
+  <!--  查询所有竞拍商品 -->
+  <select id="selectall" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from auction
+  </select>
+  
+  <!--  带条件分页查询 -->
+  <select id="selectallBy" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from auction
+    <where>
+    		<if test="auctionname!=null">
+    			AND auctionName like '%#{auctionname}%'
+			</if>
+			<if test="auctiondesc!=null">
+				AND auctionDesc like '%#{auctiondesc}%'
+			</if>
+			<if test="auctionstarttime!=null">
+				AND a.auctionStartTime &gt;= #{auctionstarttime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="auctionendtime!=null">
+				AND a.auctionEndTime &lt;= #{auctionendtime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="auctionstartprice!=null">
+				AND auctionStartPrice &gt;= #{auctionstartprice}
+			</if>
+	</where>
+  </select>
+  
+  <!--  查询正在的竞拍商品 -->
+  <select id="selectcontinue" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from auction where `auctionEndTime`>CURDATE()
+  </select>
+  
+  <!-- 根据主键删除 -->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from auction
+    where auctionId = #{auctionid,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="com.accp.pojo.Auction" >
+    insert into auction (auctionId, auctionName, auctionStartPrice, 
+      auctionUpset, auctionStartTime, auctionEndTime, 
+      auctionPic, auctionDesc, auctionPicType
+      )
+    values (#{auctionid,jdbcType=INTEGER}, #{auctionname,jdbcType=VARCHAR}, #{auctionstartprice,jdbcType=REAL}, 
+      #{auctionupset,jdbcType=REAL}, #{auctionstarttime,jdbcType=TIMESTAMP}, #{auctionendtime,jdbcType=TIMESTAMP}, 
+      #{auctionpic,jdbcType=VARCHAR}, #{auctiondesc,jdbcType=VARCHAR}, #{auctionpictype,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  
+  <!-- 新增竞拍商品 -->
+  <insert id="insertSelective" parameterType="com.accp.pojo.Auction" >
+    insert into auction
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="record.auctionid != null" >
+        auctionId,
+      </if>
+      <if test="record.auctionname != null" >
+        auctionName,
+      </if>
+      <if test="record.auctionstartprice != null" >
+        auctionStartPrice,
+      </if>
+      <if test="record.auctionupset != null" >
+        auctionUpset,
+      </if>
+      <if test="record.auctionstarttime != null" >
+        auctionStartTime,
+      </if>
+      <if test="record.auctionendtime != null" >
+        auctionEndTime,
+      </if>
+      <if test="record.auctionpic != null" >
+        auctionPic,
+      </if>
+      <if test="record.auctiondesc != null" >
+        auctionDesc,
+      </if>
+      <if test="record.auctionpictype != null" >
+        auctionPicType,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="record.auctionid != null" >
+        #{record.auctionid,jdbcType=INTEGER},
+      </if>
+      <if test="record.auctionname != null" >
+        #{record.auctionname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.auctionstartprice != null" >
+        #{record.auctionstartprice,jdbcType=REAL},
+      </if>
+      <if test="record.auctionupset != null" >
+        #{record.auctionupset,jdbcType=REAL},
+      </if>
+      <if test="record.auctionstarttime != null" >
+        #{record.auctionstarttime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.auctionendtime != null" >
+        #{record.auctionendtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.auctionpic != null" >
+        #{record.auctionpic,jdbcType=VARCHAR},
+      </if>
+      <if test="record.auctiondesc != null" >
+        #{record.auctiondesc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.auctionpictype != null" >
+        #{record.auctionpictype,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <!-- 根据主键修改 -->
+  <update id="updateByPrimaryKeySelective" parameterType="com.accp.pojo.Auction" >
+    update auction
+    <set >
+      <if test="record.auctionname != null" >
+        auctionName = #{record.auctionname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.auctionstartprice != null" >
+        auctionStartPrice = #{record.auctionstartprice,jdbcType=REAL},
+      </if>
+      <if test="record.auctionupset != null" >
+        auctionUpset = #{record.auctionupset,jdbcType=REAL},
+      </if>
+      <if test="record.auctionstarttime != null" >
+        auctionStartTime = #{record.auctionstarttime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.auctionendtime != null" >
+        auctionEndTime = #{record.auctionendtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.auctionpic != null" >
+        auctionPic = #{record.auctionpic,jdbcType=VARCHAR},
+      </if>
+      <if test="record.auctiondesc != null" >
+        auctionDesc = #{record.auctiondesc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.auctionpictype != null" >
+        auctionPicType = #{record.auctionpictype,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where auctionId = #{record.auctionid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.accp.pojo.Auction" >
+    update auction
+    set auctionName = #{auctionname,jdbcType=VARCHAR},
+      auctionStartPrice = #{auctionstartprice,jdbcType=REAL},
+      auctionUpset = #{auctionupset,jdbcType=REAL},
+      auctionStartTime = #{auctionstarttime,jdbcType=TIMESTAMP},
+      auctionEndTime = #{auctionendtime,jdbcType=TIMESTAMP},
+      auctionPic = #{auctionpic,jdbcType=VARCHAR},
+      auctionDesc = #{auctiondesc,jdbcType=VARCHAR},
+      auctionPicType = #{auctionpictype,jdbcType=LONGVARCHAR}
+    where auctionId = #{auctionid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.accp.pojo.Auction" >
+    update auction
+    set auctionName = #{auctionname,jdbcType=VARCHAR},
+      auctionStartPrice = #{auctionstartprice,jdbcType=REAL},
+      auctionUpset = #{auctionupset,jdbcType=REAL},
+      auctionStartTime = #{auctionstarttime,jdbcType=TIMESTAMP},
+      auctionEndTime = #{auctionendtime,jdbcType=TIMESTAMP},
+      auctionPic = #{auctionpic,jdbcType=VARCHAR},
+      auctionDesc = #{auctiondesc,jdbcType=VARCHAR}
+    where auctionId = #{auctionid,jdbcType=INTEGER}
+  </update>
+</mapper>

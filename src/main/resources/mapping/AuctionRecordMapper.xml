@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accp.dao.AuctionRecordDao" >
+  <resultMap id="BaseResultMap" type="com.accp.pojo.AuctionRecord" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="auc_auctionId" property="aucAuctionid" jdbcType="INTEGER" />
+    <result column="auc_userId" property="aucUserid" jdbcType="INTEGER" />
+    <result column="auctionId" property="auctionid" jdbcType="INTEGER" />
+    <result column="userId" property="userid" jdbcType="INTEGER" />
+    <result column="auctionTime" property="auctiontime" jdbcType="TIMESTAMP" />
+    <result column="auctionPrice" property="auctionprice" jdbcType="REAL" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, auc_auctionId, auc_userId, auctionId, userId, auctionTime, auctionPrice
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from auctionrecord
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 查询拍卖结束的商品 -->
+  <select id="selectAuctionsvoend" resultType="com.accp.vo.AuctionsVo">
+	SELECT * ,(SELECT `auctionPrice` FROM `auctionrecord` WHERE
+	`auctionId`=c.`auctionId` ORDER BY auctionPrice DESC LIMIT 0,1) AS
+	price ,
+	(SELECT b.`userName` FROM `auctionrecord` a JOIN`auctionuser` b
+	ON a.`userId`=b.`userId` WHERE `auctionId`=c.`auctionId`ORDER BY
+	auctionPrice DESC LIMIT 0,1) AS `name`
+	FROM `auction` c
+	WHERE CURDATE()>`auctionEndTime`
+	</select>
+  
+  	<!-- 查询 拍卖中的商品 -->
+  	<resultMap type="com.accp.vo.AuctionVo" id="query1">
+		<association property="auction" column="auctionid" select="queryt" />
+		<collection property="list" column="auctionid" select="selectdetailt" />
+	</resultMap>
+	<select id="selectAuctionVoall" resultMap="query1">
+		select * from auction WHERE `auctionEndTime`>CURDATE()
+	</select>
+	<select id="queryt" resultType="com.accp.pojo.Auction">
+		select * from auction where auctionId=#{0}
+	</select>
+	<select id="selectdetailt" resultType="com.accp.vo.AuctionRecordVo">
+		SELECT
+		a.`id`,a.`auctionId`,a.`auctionTime`,a.`auctionPrice`,b.`userName`
+		FROM `auctionrecord` a JOIN`auctionuser` b
+		ON a.`userId`=b.`userId`
+		where a.auctionId=#{0}
+	</select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from auctionrecord
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.accp.pojo.AuctionRecord" >
+    insert into auctionrecord (id, auc_auctionId, auc_userId, 
+      auctionId, userId, auctionTime, 
+      auctionPrice)
+    values (#{id,jdbcType=INTEGER}, #{aucAuctionid,jdbcType=INTEGER}, #{aucUserid,jdbcType=INTEGER}, 
+      #{auctionid,jdbcType=INTEGER}, #{userid,jdbcType=INTEGER}, #{auctiontime,jdbcType=TIMESTAMP}, 
+      #{auctionprice,jdbcType=REAL})
+  </insert>
+  
+  <!-- 新增竞拍记录 -->
+  <insert id="insertSelective" parameterType="com.accp.pojo.AuctionRecord" >
+    insert into auctionrecord
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="record.id != null" >
+        id,
+      </if>
+      <if test="record.auctionid != null" >
+        auctionId,
+      </if>
+      <if test="record.userid != null" >
+        userId,
+      </if>
+      <if test="record.auctiontime != null" >
+        auctionTime,
+      </if>
+      <if test="record.auctionprice != null" >
+        auctionPrice,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="record.id != null" >
+        #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.auctionid != null" >
+        #{record.auctionid,jdbcType=INTEGER},
+      </if>
+      <if test="record.userid != null" >
+        #{record.userid,jdbcType=INTEGER},
+      </if>
+      <if test="record.auctiontime != null" >
+        #{record.auctiontime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.auctionprice != null" >
+        #{record.auctionprice,jdbcType=REAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.accp.pojo.AuctionRecord" >
+    update auctionrecord
+    <set >
+      <if test="aucAuctionid != null" >
+        auc_auctionId = #{aucAuctionid,jdbcType=INTEGER},
+      </if>
+      <if test="aucUserid != null" >
+        auc_userId = #{aucUserid,jdbcType=INTEGER},
+      </if>
+      <if test="auctionid != null" >
+        auctionId = #{auctionid,jdbcType=INTEGER},
+      </if>
+      <if test="userid != null" >
+        userId = #{userid,jdbcType=INTEGER},
+      </if>
+      <if test="auctiontime != null" >
+        auctionTime = #{auctiontime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="auctionprice != null" >
+        auctionPrice = #{auctionprice,jdbcType=REAL},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.accp.pojo.AuctionRecord" >
+    update auctionrecord
+    set auc_auctionId = #{aucAuctionid,jdbcType=INTEGER},
+      auc_userId = #{aucUserid,jdbcType=INTEGER},
+      auctionId = #{auctionid,jdbcType=INTEGER},
+      userId = #{userid,jdbcType=INTEGER},
+      auctionTime = #{auctiontime,jdbcType=TIMESTAMP},
+      auctionPrice = #{auctionprice,jdbcType=REAL}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

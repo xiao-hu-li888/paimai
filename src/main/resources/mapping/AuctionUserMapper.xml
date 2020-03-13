@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accp.dao.AuctionUserDao" >
+  <resultMap id="BaseResultMap" type="com.accp.pojo.AuctionUser" >
+    <id column="userId" property="userid" jdbcType="INTEGER" />
+    <result column="userName" property="username" jdbcType="VARCHAR" />
+    <result column="userPassword" property="userpassword" jdbcType="VARCHAR" />
+    <result column="userCardNo" property="usercardno" jdbcType="VARCHAR" />
+    <result column="userTel" property="usertel" jdbcType="VARCHAR" />
+    <result column="userAddress" property="useraddress" jdbcType="VARCHAR" />
+    <result column="userPostNumber" property="userpostnumber" jdbcType="VARCHAR" />
+    <result column="userIsadmin" property="userisadmin" jdbcType="INTEGER" />
+    <result column="userQuestion" property="userquestion" jdbcType="VARCHAR" />
+    <result column="userAnswer" property="useranswer" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    userId, userName, userPassword, userCardNo, userTel, userAddress, userPostNumber, 
+    userIsadmin, userQuestion, userAnswer
+  </sql>
+  
+  <!-- 竞拍者登录 -->
+  <select id="selectLoginjpz" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from auctionuser
+    where userName = #{userName} and userPassword = #{userPassword}
+     and userIsadmin=0
+  </select>
+  
+  <!-- 管理员登录 -->
+  <select id="selectLogingly" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from auctionuser
+    where userName = #{userName} and userPassword = #{userPassword}
+     and userIsadmin=1
+  </select>
+  
+  <!-- 竞拍者注册 -->
+  <insert id="insertSelective" parameterType="com.accp.pojo.AuctionUser" >
+    insert into auctionuser
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="record.userid != null" >
+        userId,
+      </if>
+      <if test="record.username != null" >
+        userName,
+      </if>
+      <if test="record.userpassword != null" >
+        userPassword,
+      </if>
+      <if test="record.usercardno != null" >
+        userCardNo,
+      </if>
+      <if test="record.usertel != null" >
+        userTel,
+      </if>
+      <if test="record.useraddress != null" >
+        userAddress,
+      </if>
+      <if test="record.userpostnumber != null" >
+        userPostNumber,
+      </if>
+      <if test="record.userisadmin != null" >
+        userIsadmin,
+      </if>
+      <if test="record.userquestion != null" >
+        userQuestion,
+      </if>
+      <if test="record.useranswer != null" >
+        userAnswer,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="record.userid != null" >
+        #{record.userid,jdbcType=INTEGER},
+      </if>
+      <if test="record.username != null" >
+        #{record.username,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userpassword != null" >
+        #{record.userpassword,jdbcType=VARCHAR},
+      </if>
+      <if test="record.usercardno != null" >
+        #{record.usercardno,jdbcType=VARCHAR},
+      </if>
+      <if test="record.usertel != null" >
+        #{record.usertel,jdbcType=VARCHAR},
+      </if>
+      <if test="record.useraddress != null" >
+        #{record.useraddress,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userpostnumber != null" >
+        #{record.userpostnumber,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userisadmin != null" >
+        #{record.userisadmin,jdbcType=INTEGER},
+      </if>
+      <if test="record.userquestion != null" >
+        #{record.userquestion,jdbcType=VARCHAR},
+      </if>
+      <if test="record.useranswer != null" >
+        #{record.useranswer,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+</mapper>
